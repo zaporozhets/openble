@@ -1,0 +1,4 @@
+.pytest_cache
+baseband/test/sim_build/
+baseband/test/__pycache__/
+
