@@ -1,26 +1,16 @@
-#!/usr/bin/env python
+# 2024 Taras Zaporozhets <zaporozhets.taras@gmail.com>
 
 import itertools
 import logging
 import os
-import math
-
-import cocotb_test.simulator
-import pytest
 
 import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge
-from cocotb.regression import TestFactory
 
-from cocotbext.axi import AxiStreamFrame, AxiStreamBus, AxiStreamSource, AxiStreamSink, AxiStreamMonitor
+from cocotbext.axi import AxiStreamFrame, AxiStreamBus, AxiStreamSource, AxiStreamSink
 
-# cocotb-test
-
-tests_dir = os.path.dirname(__file__)
-rtl_dir = os.path.abspath(os.path.join(tests_dir, '..', 'rtl'))
-sim_dir = os.path.abspath(os.path.join(tests_dir, '..', 'sim'))
-
+from helpers import setup_test, rtl_dir
 
 class TB:
     def __init__(self, dut):
@@ -55,8 +45,8 @@ class TB:
 def cycle_pause():
     return itertools.cycle([1, 1, 1, 0])
 
+@cocotb.test()
 async def run_test_basic(dut):
-
     tb = TB(dut)
     await tb.reset()
 
@@ -95,6 +85,7 @@ async def run_test_basic(dut):
     assert tb.sink.empty()
     assert bytes(output_data) == bytes(expected_output_data)
 
+@cocotb.test()
 async def run_test_bypass(dut):
 
     tb = TB(dut)
@@ -129,34 +120,11 @@ async def run_test_bypass(dut):
     assert tb.sink.empty()
     assert bytes(output_data) == bytes(input_bistream)
 
-
-if cocotb.SIM_NAME:
-    tests = [
-        run_test_basic,
-        run_test_bypass
-    ]
-    
-    for test in tests:
-        factory = TestFactory(test)
-        factory.generate_tests()
-
-
-def test_whitening(request):
-    module = os.path.splitext(os.path.basename(__file__))[0]
-    toplevel = "whitening"
-
-    verilog_sources = [
-        os.path.join(rtl_dir, "whitening.sv"),
-    ]
-
-    sim_build = os.path.join(tests_dir, "sim_build",
-        request.node.name.replace('[', '-').replace(']', ''))
-
-    cocotb_test.simulator.run(
-        python_search=[tests_dir],
-        verilog_sources=verilog_sources,
-        toplevel=toplevel,
-        module=module,
-        sim_build=sim_build,
-        includes=[rtl_dir]
+def test_whitening():
+    setup_test(
+        "test_whitening",
+        "whitening",
+        [
+            os.path.join(rtl_dir, "whitening.sv"),
+        ]
     )
