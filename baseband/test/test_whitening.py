@@ -1,12 +1,10 @@
 #!/usr/bin/env python
 
+# 2024 Taras Zaporozhets <zaporozhets.taras@gmail.com>
+
 import itertools
 import logging
 import os
-import math
-
-import cocotb_test.simulator
-import pytest
 
 import cocotb
 from cocotb.clock import Clock
@@ -15,12 +13,7 @@ from cocotb.regression import TestFactory
 
 from cocotbext.axi import AxiStreamFrame, AxiStreamBus, AxiStreamSource, AxiStreamSink, AxiStreamMonitor
 
-# cocotb-test
-
-tests_dir = os.path.dirname(__file__)
-rtl_dir = os.path.abspath(os.path.join(tests_dir, '..', 'rtl'))
-sim_dir = os.path.abspath(os.path.join(tests_dir, '..', 'sim'))
-
+from helpers import *
 
 class TB:
     def __init__(self, dut):
@@ -142,21 +135,11 @@ if cocotb.SIM_NAME:
 
 
 def test_whitening(request):
-    module = os.path.splitext(os.path.basename(__file__))[0]
-    toplevel = "whitening"
-
-    verilog_sources = [
-        os.path.join(rtl_dir, "whitening.sv"),
-    ]
-
-    sim_build = os.path.join(tests_dir, "sim_build",
-        request.node.name.replace('[', '-').replace(']', ''))
-
-    cocotb_test.simulator.run(
-        python_search=[tests_dir],
-        verilog_sources=verilog_sources,
-        toplevel=toplevel,
-        module=module,
-        sim_build=sim_build,
-        includes=[rtl_dir]
+    setup_test(
+        "test_whitening",
+        "whitening",
+        [
+            os.path.join(rtl_dir, "whitening.sv"),
+        ]
     )
+
