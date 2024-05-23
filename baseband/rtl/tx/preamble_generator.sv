@@ -1,11 +1,9 @@
 // 2024 Taras Zaporozhets <zaporozhets.taras@gmail.com>
 
-
-`timescale 1ns / 1ps
-//
-`default_nettype none
-//
-`include "ble_types.svh"
+`resetall  //
+`timescale 1ns / 1ps  //
+`default_nettype none  //
+`include "ble_types.svh"  //
 
 module preamble_generator (
     input wire aclk,
@@ -92,7 +90,7 @@ module preamble_generator (
 
             preamble <= get_preamble(phy, input_tdata);
             preamble_len <= get_preamble_len(phy);
-            
+
             counter <= 1;
             output_tdata <= get_preamble(phy, input_tdata) & 1;
             output_tvalid <= 1;
@@ -102,16 +100,16 @@ module preamble_generator (
           end
         end
         FsmSendingPreamble: begin
-          input_tready  <= 0;
+          input_tready <= 0;
 
           if (output_tvalid & output_tready) begin
             counter <= counter + 1;
             output_tvalid <= 1;
-            output_tdata  <= preamble[counter];
-            output_tlast  <= 0;
+            output_tdata <= preamble[counter];
+            output_tlast <= 0;
 
             if (preamble_len <= counter) begin
-              // Send 
+              // Send
               output_tdata <= first_tdata;
               output_tlast <= first_tlast;
               output_tvalid <= 1;
@@ -148,35 +146,42 @@ module preamble_generator (
   end
 
   // Returns preamble value based on phy type
-  function logic [CodedPreambleLength-1:0] get_preamble(ble_phy_t phy, logic acc_first_bit);
+  function automatic logic [CodedPreambleLength-1:0] get_preamble(ble_phy_t phy,
+                                                                  logic acc_first_bit);
 
     // For 1M and 2M phy!
     // The first bit of the preamble (in transmission order)
     // shall be the same as the LSB of the Access Address.
     case (phy)
-      BlePhy1M: begin
+      PHY_1M: begin
         get_preamble = (acc_first_bit) ? ~Preamble1MPattern : Preamble1MPattern;
       end
-      BlePhy2M: begin
-        get_preamble = (acc_first_bit) ? ~Preamble2MPattern : Preamble2MPattern;  
+      PHY_2M: begin
+        get_preamble = (acc_first_bit) ? ~Preamble2MPattern : Preamble2MPattern;
       end
-      BlePhyCoded: begin
-        get_preamble = CodedPreamblePattern; 
+      PHY_CODED: begin
+        get_preamble = CodedPreamblePattern;
+      end
+      default: begin
+        get_preamble = 0;
       end
     endcase
   endfunction
 
   // Returns preamble length based on phy type
-  function logic [$clog2(CodedPreambleLength):0] get_preamble_len(ble_phy_t phy);
+  function automatic logic [$clog2(CodedPreambleLength):0] get_preamble_len(ble_phy_t phy);
     case (phy)
-      BlePhy1M: begin
+      PHY_1M: begin
         get_preamble_len = Preamble1MLength;
       end
-      BlePhy2M: begin
-        get_preamble_len = Preamble2MLength;        
+      PHY_2M: begin
+        get_preamble_len = Preamble2MLength;
       end
-      BlePhyCoded: begin
-        get_preamble_len = CodedPreambleLength;   
+      PHY_CODED: begin
+        get_preamble_len = CodedPreambleLength;
+      end
+      default: begin
+        get_preamble_len = 0;
       end
     endcase
   endfunction

@@ -1,9 +1,8 @@
 // 2024 Taras Zaporozhets <zaporozhets.taras@gmail.com>
 
-
-`timescale 1ns / 1ps
-//
-`default_nettype none
+`resetall  //
+`timescale 1ns / 1ps  //
+`default_nettype none  //
 
 // Implements whitener and de-whitener using a 7-bit linear
 // feedback shift register with the polynomial x^7 + x^4 + 1.
@@ -26,7 +25,7 @@ module whitening (
     output wire output_tdata,
     output wire output_tvalid,
     input  wire output_tready,
-    output  wire output_tlast
+    output wire output_tlast
 );
   reg [6:0] lfsr = 0;
   reg input_tready_int = 0;
@@ -37,7 +36,7 @@ module whitening (
   assign input_tready  = (bypass) ? output_tready : input_tready_int;
   assign output_tdata  = (bypass) ? input_tdata : output_tdata_int;
   assign output_tvalid = (bypass) ? input_tvalid : output_tvalid_int;
-  assign output_tlast = (bypass) ? input_tlast : output_tlast_int;
+  assign output_tlast  = (bypass) ? input_tlast : output_tlast_int;
 
   // Before whitening or de-whitening, the shift register is initialized with a sequence
   // that is derived from the physical channel index

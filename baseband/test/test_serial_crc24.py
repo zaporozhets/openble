@@ -18,7 +18,7 @@ class TB:
         self.log = logging.getLogger("cocotb.tb")
         self.log.setLevel(logging.DEBUG)
         cocotb.start_soon(Clock(dut.aclk, 2, units="ns").start())
-        self.source = AxiStreamSource(AxiStreamBus.from_prefix(dut, "in"), dut.aclk, dut.aresetn, False, byte_lanes=1)
+        self.source = AxiStreamSource(AxiStreamBus.from_prefix(dut, "input"), dut.aclk, dut.aresetn, False, byte_lanes=1)
 
     async def reset(self):
         self.dut.aresetn.setimmediatevalue(0)
