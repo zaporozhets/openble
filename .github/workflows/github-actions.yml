@@ -13,5 +13,8 @@ jobs:
         with: 
           submodules: true
 
+      - name: Analysing the code with pylint
+        run: find -name "*.py" | xargs pylint
+
       - name: Run cocotb tests
-        run: pytest -s ./baseband/test/
+        run: pytest -s -o log_cli=True ./baseband/test/

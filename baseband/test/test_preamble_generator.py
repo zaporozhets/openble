@@ -1,20 +1,16 @@
-#!/usr/bin/env python
-
 # 2024 Taras Zaporozhets <zaporozhets.taras@gmail.com>
-
 
 import itertools
 import logging
-
+import os
 
 import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge
-from cocotb.regression import TestFactory
 
-from cocotbext.axi import AxiStreamFrame, AxiStreamBus, AxiStreamSource, AxiStreamSink, AxiStreamMonitor
+from cocotbext.axi import AxiStreamFrame, AxiStreamBus, AxiStreamSource, AxiStreamSink
 
-from helpers import *
+from helpers import setup_test, rtl_dir, BlePhy
 
 class TB:
     def __init__(self, dut):
@@ -47,7 +43,7 @@ def backpressure_cycle_pause():
 
 
 
-async def generate_and_compare(dut, phy: ble_phy_t , input_data, expected_output_data):
+async def generate_and_compare(dut, phy: BlePhy , input_data, expected_output_data):
     tb = TB(dut)
     await tb.reset()
 
@@ -64,10 +60,11 @@ async def generate_and_compare(dut, phy: ble_phy_t , input_data, expected_output
     await tb.source.send(test_frame)
 
     output_data = bytes(await tb.sink.recv())
- 
+
     assert tb.sink.empty()
     assert output_data == expected_output_data
 
+@cocotb.test()
 async def run_test_1phy_55(dut):
     input_data = [
         # Access address
@@ -81,8 +78,9 @@ async def run_test_1phy_55(dut):
         0, 0, 0, 0, 0, 0, 0, 0,
     ]
 
-    await generate_and_compare(dut, ble_phy_t.BlePhy1M, input_data, expected_output_data)
+    await generate_and_compare(dut, BlePhy.BLE_PHY_1M, input_data, expected_output_data)
 
+@cocotb.test()
 async def run_test_1phy_aa(dut):
     input_data = [
         # Access address
@@ -96,8 +94,9 @@ async def run_test_1phy_aa(dut):
         1, 1, 1, 1, 1, 1, 1, 1,
     ]
 
-    await generate_and_compare(dut, ble_phy_t.BlePhy1M, input_data, expected_output_data)
+    await generate_and_compare(dut, BlePhy.BLE_PHY_1M, input_data, expected_output_data)
 
+@cocotb.test()
 async def run_test_2phy_5555(dut):
     input_data = [
         # Access address
@@ -111,8 +110,9 @@ async def run_test_2phy_5555(dut):
         0, 0, 0, 0, 0, 0, 0, 0,
     ]
 
-    await generate_and_compare(dut, ble_phy_t.BlePhy2M, input_data, expected_output_data)
+    await generate_and_compare(dut, BlePhy.BLE_PHY_2M, input_data, expected_output_data)
 
+@cocotb.test()
 async def run_test_2phy_aaaa(dut):
     input_data = [
         # Access address
@@ -126,9 +126,9 @@ async def run_test_2phy_aaaa(dut):
         1, 1, 1, 1, 1, 1, 1, 1,
     ]
 
-    await generate_and_compare(dut, ble_phy_t.BlePhy2M, input_data, expected_output_data)
+    await generate_and_compare(dut, BlePhy.BLE_PHY_2M, input_data, expected_output_data)
 
-
+@cocotb.test()
 async def run_test_coded_phy(dut):
     input_data = [
         # Access address
@@ -143,27 +143,10 @@ async def run_test_coded_phy(dut):
         1, 1, 1, 1, 1, 1, 1, 1,
 
     ]
-    
-    await generate_and_compare(dut, ble_phy_t.BlePhyCoded, input_data, expected_output_data)
 
-if cocotb.SIM_NAME:
-    tests = [
-        run_test_1phy_55,
-        run_test_1phy_aa,
-        run_test_2phy_5555,
-        run_test_2phy_aaaa,
-        run_test_coded_phy
-    ]
+    await generate_and_compare(dut, BlePhy.BLE_PHY_CODED, input_data, expected_output_data)
 
-    for test in tests:
-        factory = TestFactory(test)
-        factory.generate_tests()
-
-
-
-# cocotb-test
-
-def test_preamble_generator(request):
+def test_preamble_generator():
     setup_test(
         "test_preamble_generator",
         "preamble_generator",
@@ -171,4 +154,3 @@ def test_preamble_generator(request):
             os.path.join(rtl_dir, "tx/preamble_generator.sv"),
         ]
     )
-
