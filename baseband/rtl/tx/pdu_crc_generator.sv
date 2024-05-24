@@ -59,7 +59,7 @@ module pdu_crc_generator (
   wire pdu_chunk_tready;
   reg pdu_chunk_tlast = 0;
 
-  assign event_end = output_tvalid & output_tlast;
+  assign event_end = output_tvalid & output_tlast & output_tready;
   assign event_payload = (previous_fsm_state != state) & (state == FsmTxFinishCrcCalulation);
 
   always @(posedge aclk) begin : FSM
@@ -175,7 +175,7 @@ module pdu_crc_generator (
 
   serializer #(
       .C_DATA_WIDTH(MaxPduChunkLengthBits)
-  ) serializer_dut (
+  ) serializer_inst (
       .aclk(aclk),
       .aresetn(aresetn),
       .restart(restart),
@@ -191,7 +191,7 @@ module pdu_crc_generator (
       .output_tlast (output_tlast)
   );
 
-  serial_crc24 crc (
+  serial_crc24 crc_inst (
       .aclk(aclk),
       .aresetn(aresetn),
       .restart(restart),

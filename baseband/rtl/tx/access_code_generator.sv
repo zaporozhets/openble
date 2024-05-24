@@ -54,6 +54,7 @@ module access_code_generator (
         FsmIdle: begin
           input_tready  <= 0;
           output_tvalid <= 0;
+          output_tlast <= 0;
         end
         FsmInit: begin
           input_tready <= 0;

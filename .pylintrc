@@ -5,7 +5,9 @@ disable=
     C0116, # Missing function or method docstring (missing-function-docstring)
     R0903, # Too few public methods (1/2) (too-few-public-methods)
     E1120, # No value for argument 'f' in constructor call (no-value-for-parameter)
-    R0801  # Similar lines
+    R0801, # Similar lines
+    R0913, # Too many arguments (9/5) (too-many-arguments)
+    W0511  # todo and fixme
 
 [FORMAT]
 max-line-length=160
