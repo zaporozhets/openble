@@ -16,5 +16,12 @@ jobs:
       - name: Analysing the code with pylint
         run: find -name "*.py" | xargs pylint
 
+      - name: Check verible format
+        run: find baseband/ -iname "*.sv" -o -iname "*.svh" -print0 | xargs -0 -n1 verible-verilog-format --verify --inplace
+
+      - name: Check verible lint
+        shell: bash
+        run: verible-verilog-lint baseband/**/*.sv baseband/**/*.svh
+
       - name: Run cocotb tests
         run: pytest -s -o log_cli=True ./baseband/test/

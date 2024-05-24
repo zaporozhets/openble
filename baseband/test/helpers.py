@@ -41,3 +41,10 @@ class BleCi(Enum):
     """Enumeration for bluetooth coding indicator types."""
     BLE_CI_S8 = 0
     BLE_CI_S2 = 1
+
+class BlePduType(Enum):
+    """Enumeration for bluetooth PDU types."""
+    PDU_TYPE_ADVERTISING = 0
+    PDU_TYPE_DATA = 1
+    PDU_TYPE_ISO = 2
+    PDU_TYPE_TEST = 3
